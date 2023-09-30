@@ -5,6 +5,7 @@ import com.project.springapistudy.exception.ErrorCode;
 import com.project.springapistudy.menu.domain.Menu;
 import com.project.springapistudy.menu.dto.MenuPatchDto;
 import com.project.springapistudy.menu.dto.MenuPostDto;
+import com.project.springapistudy.menu.dto.MenuResponseDto;
 import com.project.springapistudy.menu.repository.MenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class MenuService {
         menuRepository.save(menu);
     }
 
-    public void updateMenu (Long menuId, MenuPatchDto patchDto) {
+    public void updateMenu (long menuId, MenuPatchDto patchDto) {
         Menu menu = existMenu(menuId);
 
         if (!existName(patchDto.getName()).isEmpty()) {
@@ -37,8 +38,15 @@ public class MenuService {
         }
         menuRepository.save(menu);
     }
+    public MenuResponseDto findMenu(long menuId) {
+        Menu menu = existMenu(menuId);
+        return MenuResponseDto.builder()
+                .name(menu.getName())
+                .price(menu.getPrice())
+                .build();
+    }
 
-    private Menu existMenu(Long menuId) {
+    private Menu existMenu(long menuId) {
         Optional<Menu> op = menuRepository.findById(menuId);
         Menu menu = op.orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.MENU_NOT_FOUND));
         return menu;
