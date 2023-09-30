@@ -9,12 +9,14 @@ import com.project.springapistudy.menu.dto.MenuResponseDto;
 import com.project.springapistudy.menu.repository.MenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MenuService {
     private final MenuRepository menuRepository;
 
@@ -28,7 +30,7 @@ public class MenuService {
 
     public void updateMenu (long menuId, MenuPatchDto patchDto) {
         Menu menu = existMenu(menuId);
-
+        menuStatus(menu);
         if (!existName(patchDto.getName()).isEmpty()) {
             throw new BusinessExceptionHandler(ErrorCode.SAME_NAME);
         }
@@ -36,14 +38,24 @@ public class MenuService {
         if (patchDto.getPrice() != 0) {
             menu.updatePrice(patchDto.getPrice());
         }
-        menuRepository.save(menu);
     }
+    @Transactional(readOnly = true)
     public MenuResponseDto findMenu(long menuId) {
         Menu menu = existMenu(menuId);
+        menuStatus(menu);
         return MenuResponseDto.builder()
                 .name(menu.getName())
                 .price(menu.getPrice())
                 .build();
+    }
+    public void deleteMenu(long menuId) {
+        Menu menu = existMenu(menuId);
+        menuStatus(menu);
+        menu.changeUse(false);
+    }
+
+    private static void menuStatus(Menu menu) {
+        if (!menu.isMenuUse()) throw new BusinessExceptionHandler(ErrorCode.MENU_NOT_FOUND);
     }
 
     private Menu existMenu(long menuId) {

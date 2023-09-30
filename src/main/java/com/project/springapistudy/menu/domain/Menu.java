@@ -23,6 +23,9 @@ public class Menu extends BaseAuditing {
     @NotNull
     private int price;
 
+    @Column
+    private boolean menuUse = true;
+
     @Builder
     public Menu(String name, int price) {
         this.name = name;
@@ -34,5 +37,8 @@ public class Menu extends BaseAuditing {
     }
     public void updatePrice(int price) {
         this.price = price;
+    }
+    public void changeUse (boolean status) {
+        this.menuUse = status;
     }
 }
